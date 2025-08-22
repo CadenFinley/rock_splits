@@ -4,6 +4,7 @@ void start_new_split();
 void view_previous_splits();
 void generate_report();
 std::string get_current_time_and_date();
+std::string get_due_date();
 std::vector<float> split_comma_separated_string(const std::string& input);
 void load_config();
 void load_members();
@@ -28,3 +29,4 @@ std::vector<std::string> house_members;
 std::map<std::string, float> split_map;
 
 std::string current_time_and_date;
+std::string due_date;

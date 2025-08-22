@@ -22,6 +22,18 @@ void clear_screen() {
   std::cout << "\033[2J\033[1;1H";
 }
 
+void reset_values() {
+  current_time_and_date = "";
+  due_date = "";
+  gas_total = 0.0f;
+  electric_total = 0.0f;
+  electric_static = 0.0f;
+  water_total = 0.0f;
+  water_static = 0.0f;
+  internet_total = 0.0f;
+  split_map.clear();
+}
+
 void load_members() {
   std::string configDir = std::string(getenv("HOME")) + "/.config/rock_splits";
   std::string mkdirCmd = "mkdir -p \"" + configDir + "\"";
@@ -127,6 +139,7 @@ void main_menu () {
   load_members();
 
   current_time_and_date = get_current_time_and_date();
+  due_date = get_due_date();
   clear_screen();
   std::cout << "Current time and date: " << current_time_and_date << std::endl;
   std::cout << "1. Start new split" << std::endl;
@@ -150,9 +163,8 @@ void main_menu () {
       std::cout << "Exiting program..." << std::endl;
       return;
     default:
-      std::cout << "Invalid choice. Please try again." << std::endl;
-      main_menu();
-      break;
+      std::cout << "Exiting program..." << std::endl;
+      return;
   }
 }
 
@@ -277,6 +289,18 @@ void generate_report() {
     std::cout << "Member: " << member << ", Amount: $" << amount << std::endl;
   }
 
+  std::cout << "Does everything look right?\n ( y or n ): ";
+  char confirmation;
+  std::cin >> confirmation;
+
+  if (confirmation == 'y' || confirmation == 'Y') {
+    std::cout << "Great! Proceeding with report generation." << std::endl;
+  } else {
+    std::cout << "Report generation aborted." << std::endl;
+    reset_values();
+    return;
+  }
+
   std::string reportsDir = std::string(getenv("HOME")) + "/.cache/rock_splits/reports";
   std::string mkdirCmd = "mkdir -p \"" + reportsDir + "\"";
   int dirCreated = system(mkdirCmd.c_str());
@@ -292,8 +316,6 @@ void generate_report() {
     reportFile << "==================================================" << std::endl;
     reportFile << "           ROCK SPLITS DETAILED REPORT            " << std::endl;
     reportFile << "==================================================" << std::endl;
-    reportFile << "Generated: " << current_time_and_date << std::endl;
-    reportFile << "==================================================" << std::endl << std::endl;
     
     reportFile << "BILL SUMMARY" << std::endl;
     reportFile << "--------------------------------------------------" << std::endl;
@@ -364,8 +386,8 @@ void generate_report() {
     reportFile << "1. Base charges (electric static + water static + internet) divided equally among ALL members" << std::endl;
     reportFile << "   $" << (electric_static + water_static + internet_total) << " / " << house_members.size() << " = $" << split_static_total << " per member" << std::endl << std::endl;
     
-    reportFile << "2. Variable charges (gas + variable electric + variable water) divided among LIVING members only" << std::endl;
-    reportFile << "   $" << total_variable << " / " << living_members.size() << " = $" << split_variable_total << " per living member" << std::endl << std::endl;
+    reportFile << "2. Variable charges (gas + variable electric + variable water) divided among IN HOUSE members only" << std::endl;
+    reportFile << "   $" << total_variable << " / " << living_members.size() << " = $" << split_variable_total << " per in house member" << std::endl << std::endl;
     
     reportFile << "FINAL SPLIT AMOUNTS" << std::endl;
     reportFile << "--------------------------------------------------" << std::endl;
@@ -379,7 +401,9 @@ void generate_report() {
       }
       reportFile << std::endl;
     }
-    
+
+    reportFile << std::endl << "Bill Splits are due by " << due_date;
+
     reportFile << std::endl << "==================================================" << std::endl;
     reportFile << "Report generated: " << current_time_and_date;
     reportFile << "==================================================" << std::endl;
@@ -502,4 +526,11 @@ std::string get_current_time_and_date() {
   auto now = std::chrono::system_clock::now();
   std::time_t now_c = std::chrono::system_clock::to_time_t(now);
   return std::ctime(&now_c);
+}
+
+std::string get_due_date() {
+  auto now = std::chrono::system_clock::now();
+  auto dueDate = now + std::chrono::hours(24 * 5);
+  std::time_t due_c = std::chrono::system_clock::to_time_t(dueDate);
+  return std::ctime(&due_c);
 }
