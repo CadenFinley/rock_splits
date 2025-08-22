@@ -1,0 +1,37 @@
+# Built object files
+*.o
+*.obj
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Executable files
+*.exe
+*.out
+*.app
+
+# Shared libraries
+*.dll
+*.so
+*.dylib
+*.a
+*.lib
+
+# Debug files
+*.dSYM/
+
+# Code coverage files
+*.gcno
+*.gcda
+
+# VS Code settings folder
+.vscode/
+
+# MacOS specific files
+.DS_Store
+
+# Backup and temporary files
+*~
+
+/build
