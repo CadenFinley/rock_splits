@@ -10,6 +10,7 @@
 #include <ctime>
 #include <cstdlib>
 #include <limits>
+#include <cmath>
 #include <dirent.h>
 #include "main.h"
 
@@ -250,8 +251,8 @@ void start_new_split() {
     }
   }
 
-  float split_static_total = (electric_static + water_static + internet_total) / house_members.size();
-  float split_variable_total = (gas_total + (electric_total - electric_static) + (water_total - water_static)) / living_members.size();
+  float split_static_total = std::ceil((electric_static + water_static + internet_total) * 100 / house_members.size()) / 100;
+  float split_variable_total = std::ceil((gas_total + (electric_total - electric_static) + (water_total - water_static)) * 100 / living_members.size()) / 100;
 
   for (const auto& member : house_members) {
     split_map[member] = split_static_total;
@@ -379,8 +380,8 @@ void generate_report() {
     }
     reportFile << std::endl << std::endl;
     
-    float split_static_total = (electric_static + water_static + internet_total) / house_members.size();
-    float split_variable_total = total_variable / living_members.size();
+    float split_static_total = std::ceil((electric_static + water_static + internet_total) * 100 / house_members.size()) / 100;
+    float split_variable_total = std::ceil(total_variable * 100 / living_members.size()) / 100;
     
     reportFile << "Split calculation method:" << std::endl;
     reportFile << "1. Base charges (electric static + water static + internet) divided equally among ALL members" << std::endl;
